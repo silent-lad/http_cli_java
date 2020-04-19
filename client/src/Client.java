@@ -71,9 +71,7 @@ public class Client
                             case "disconnect":
                                 isConnectionEstablished=false;
                                 obj.put("type", "DISCONNECT");
-                                System.out.println("Closing this connection : " + s);
                                 s.close();
-                                System.out.println("Connection closed");
                                 break;
                             default:
                                 break;

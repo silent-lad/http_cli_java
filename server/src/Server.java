@@ -14,6 +14,19 @@ import org.json.simple.JSONValue;
 
 public class Server {
     public static void main(String args[]) throws IOException {
+
+        try {
+            File myObj = new File("filename.txt");
+            if (myObj.createNewFile()) {
+                System.out.println("File created: " + myObj.getName());
+            } else {
+                System.out.println("File already exists.");
+            }
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+
         int serverPort = 8000;
         ServerSocket server = new ServerSocket(serverPort);
         while (true) {
