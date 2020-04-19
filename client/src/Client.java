@@ -12,46 +12,68 @@ public class Client
     {
         try
         {
-            System.out.println("dfg");
             Scanner scn = new Scanner(System.in);
 
-            // getting localhost ip 
-            InetAddress ip = InetAddress.getByName("localhost");
+            Boolean isConnectionEstablished = false;
+            String initCommand = scn.nextLine();
 
-            // establish the connection with server port 5056 
-            Socket s = new Socket(ip, 8000);
+            String commandType = initCommand.split(" ",3)[0];
+            String ipArg = initCommand.split(" ",3)[1];
+            String portArg = initCommand.split(" ",3)[2];
 
-            // obtaining input and out streams 
-            DataInputStream dis = new DataInputStream(s.getInputStream());
-            DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+            if(commandType=="connect"){
+                isConnectionEstablished = true;
 
-            // the following loop performs the exchange of 
-            // information between client and client handler 
-            while (true)
-            {
-                System.out.println(dis.readUTF());
-                String tosend = scn.nextLine();
-                dos.writeUTF(tosend);
+                InetAddress IPAddress = InetAddress.getByName(ipArg);
+                Socket s = new Socket(IPAddress, Integer.parseInt(portArg));
 
-                // If client sends exit,close this connection  
-                // and then break from the while loop 
-                if(tosend.equals("Exit"))
+                DataInputStream dis = new DataInputStream(s.getInputStream());
+                DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+
+                // the following loop performs the exchange of
+                // information between client and client handler
+                while (isConnectionEstablished)
                 {
-                    System.out.println("Closing this connection : " + s);
-                    s.close();
-                    System.out.println("Connection closed");
-                    break;
-                }
+                    System.out.println(dis.readUTF());
+                    String tosend = scn.nextLine();
 
-                // printing date or time as requested by client 
-                String received = dis.readUTF();
-                System.out.println(received);
+                    String requestType = tosend.split(" ",2)[0];
+                    switch(requestType){
+                        case "connect":
+                            System.out.println("Connecting");
+                            break;
+                        case "get":
+                            System.out.println("Getting File");
+                            break;
+                        case "put":
+                            System.out.println("Putting File");
+                            break;
+                        case "delete":
+                            System.out.println("Deleting File");
+                            break;
+                        case "disconnect":
+                            isConnectionEstablished=false;
+                            System.out.println("Closing this connection : " + s);
+                            s.close();
+                            System.out.println("Connection closed");
+                            break;
+                        default:
+                            break;
+                    }
+                    dos.writeUTF(tosend);
+
+                    // printing date or time as requested by client
+                    String received = dis.readUTF();
+                    System.out.println(received);
+                }
+                // closing resources
+                scn.close();
+                dis.close();
+                dos.close();
             }
 
-            // closing resources 
-            scn.close();
-            dis.close();
-            dos.close();
+        }catch(ConnectException connectionException){
+            System.out.println("Check the server if it is started or not.");
         }catch(Exception e){
             e.printStackTrace();
         }

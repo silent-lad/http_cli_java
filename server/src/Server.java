@@ -49,19 +49,19 @@ class Connection extends Thread
     @Override
     public void run()
     {
-        String received;
-        String toreturn;
+
         while (true)
         {
             try {
+                String responseJSON;
+                // receive the answer from client
+                String requestJSON = inputStream.readUTF();
 
                 // Ask user what he wants
                 outputStream.writeUTF("What do you want?[Date | Time]..\n"+
                         "Type Exit to terminate connection.");
 
-                // receive the answer from client
-                received = inputStream.readUTF();
-                if(received.equals("Exit"))
+                if(requestJSON.equals("Exit"))
                 {
                     System.out.println("Client " + this.socket + " sends exit...");
                     System.out.println("Closing this connection.");
@@ -69,7 +69,7 @@ class Connection extends Thread
                     System.out.println("Connection closed");
                     break;
                 }
-                outputStream.writeUTF(received);
+                outputStream.writeUTF(requestJSON);
             } catch (IOException e) {
                 e.printStackTrace();
             }
