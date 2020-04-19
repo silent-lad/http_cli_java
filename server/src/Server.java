@@ -8,6 +8,10 @@ import org.json.simple.parser.ContainerFactory;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+
 public class Server {
     public static void main(String args[]) throws IOException {
         int serverPort = 8000;
@@ -49,19 +53,20 @@ class Connection extends Thread
     @Override
     public void run()
     {
+        String responseJSON;
+        String requestJSON ;
 
         while (true)
         {
             try {
-                String responseJSON;
-                // receive the answer from client
-                String requestJSON = inputStream.readUTF();
+                requestJSON = inputStream.readUTF();
+                System.out.println(requestJSON);
+                JSONObject requestObject = (JSONObject) JSONValue.parse(requestJSON);
+                System.out.println("4");
+                String requestType = (String)requestObject.get("type");
+                System.out.println(requestType);
 
-                // Ask user what he wants
-                outputStream.writeUTF("What do you want?[Date | Time]..\n"+
-                        "Type Exit to terminate connection.");
-
-                if(requestJSON.equals("Exit"))
+                if(requestType.equals("Exit"))
                 {
                     System.out.println("Client " + this.socket + " sends exit...");
                     System.out.println("Closing this connection.");
@@ -69,9 +74,9 @@ class Connection extends Thread
                     System.out.println("Connection closed");
                     break;
                 }
-                outputStream.writeUTF(requestJSON);
-            } catch (IOException e) {
-                e.printStackTrace();
+                outputStream.writeUTF(requestType);
+            } catch (Exception e) {
+                System.out.println(e);
             }
         }
 

@@ -5,6 +5,9 @@ import java.io.*;
 import java.net.*;
 import java.util.Scanner;
 
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+
 // Client class 
 public class Client
 {
@@ -30,34 +33,44 @@ public class Client
                      Socket s = new Socket(IPAddress, Integer.parseInt(portArg));
                     DataInputStream dis = new DataInputStream(s.getInputStream());
                     DataOutputStream dos = new DataOutputStream(s.getOutputStream());
-                     dos.writeUTF("YUP");
 
                     while (isConnectionEstablished)
                     {
-                        System.out.println(dis.readUTF());
-                        System.out.println("Hey YO");
                         String tosend = scn.nextLine();
 
                         String requestType = tosend.split(" ",2)[0];
-                        switch(requestType){
+                        JSONObject obj = new JSONObject();
+                        String jsonText;
+
+                        obj.put("message", "request");
+
+
+                        try{switch(requestType){
                             case "connect":
                                 System.out.println("Connecting");
                                 break;
                             case "get":
-                                System.out.println("Getting File");
                                 String targetGet = tosend.split(" ",2)[1];
+                                obj.put("type", "GET");
+                                obj.put("target", targetGet);
                                 break;
                             case "put":
                                 System.out.println("Putting File");
                                 String sourcePut = tosend.split(" ",3)[1];
                                 String targetPut = tosend.split(" ",3)[2];
+                                obj.put("type", "PUT");
+                                obj.put("target", targetPut);
+                                obj.put("source", sourcePut);
                                 break;
                             case "delete":
                                 System.out.println("Deleting File");
                                 String targetDelete = tosend.split(" ",2)[1];
+                                obj.put("type", "DELETE");
+                                obj.put("target", targetDelete);
                                 break;
                             case "disconnect":
                                 isConnectionEstablished=false;
+                                obj.put("type", "DISCONNECT");
                                 System.out.println("Closing this connection : " + s);
                                 s.close();
                                 System.out.println("Connection closed");
@@ -65,11 +78,11 @@ public class Client
                             default:
                                 break;
                         }
-                        dos.writeUTF(tosend);
-
-                        // printing date or time as requested by client
+                        dos.writeUTF(obj.toString());
                         String received = dis.readUTF();
-                        System.out.println(received);
+                        System.out.println(received);}catch(Exception EE){
+
+                        }
                     }
                     // closing resources
                     scn.close();
