@@ -17,13 +17,13 @@ public class Server {
             try {
                 socket = server.accept();
                 System.out.println("Server application running at port 8000");
-                //Date today = new Date();
-                //DataInputStream inputStream = new DataInputStream(socket.getInputStream());
-                //DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
+                Date today = new Date();
+                DataInputStream inputStream = new DataInputStream(socket.getInputStream());
+                DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
 
-                //Thread ConnectionThread = new Connection(socket, inputStream, outputStream);
+                Thread ConnectionThread = new Connection(socket, inputStream, outputStream);
 
-                //ConnectionThread.start();
+                ConnectionThread.start();
             } catch (Exception e) {
                 socket.close();
                 System.out.println("New client could not be connected");
@@ -44,8 +44,6 @@ class Connection extends Thread
         this.socket = socket;
         this.inputStream = inputStream;
         this.outputStream = outputStream;
-
-        //outputStream.writeUTF("Connection Made");
     }
 
     @Override
@@ -63,7 +61,6 @@ class Connection extends Thread
 
                 // receive the answer from client
                 received = inputStream.readUTF();
-
                 if(received.equals("Exit"))
                 {
                     System.out.println("Client " + this.socket + " sends exit...");
@@ -72,28 +69,7 @@ class Connection extends Thread
                     System.out.println("Connection closed");
                     break;
                 }
-
-                // creating Date object
-                Date date = new Date();
-
-                // write on output stream based on the
-                // answer from the client
-                switch (received) {
-
-                    case "Date" :
-
-                        outputStream.writeUTF("sdf");
-                        break;
-
-                    case "Time" :
-
-                        outputStream.writeUTF("sdf");
-                        break;
-
-                    default:
-                        outputStream.writeUTF("Invalid input");
-                        break;
-                }
+                outputStream.writeUTF(received);
             } catch (IOException e) {
                 e.printStackTrace();
             }
