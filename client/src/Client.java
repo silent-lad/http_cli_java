@@ -21,59 +21,64 @@ public class Client
             String ipArg = initCommand.split(" ",3)[1];
             String portArg = initCommand.split(" ",3)[2];
 
-            if(commandType=="connect"){
+            if(commandType.equals("connect")){
+
                 isConnectionEstablished = true;
-
                 InetAddress IPAddress = InetAddress.getByName(ipArg);
-                Socket s = new Socket(IPAddress, Integer.parseInt(portArg));
 
-                DataInputStream dis = new DataInputStream(s.getInputStream());
-                DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+                try {
+                     Socket s = new Socket(IPAddress, Integer.parseInt(portArg));
+                    DataInputStream dis = new DataInputStream(s.getInputStream());
+                    DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+                     dos.writeUTF("YUP");
 
-                // the following loop performs the exchange of
-                // information between client and client handler
-                while (isConnectionEstablished)
-                {
-                    System.out.println(dis.readUTF());
-                    String tosend = scn.nextLine();
+                    while (isConnectionEstablished)
+                    {
+                        System.out.println(dis.readUTF());
+                        System.out.println("Hey YO");
+                        String tosend = scn.nextLine();
 
-                    String requestType = tosend.split(" ",2)[0];
-                    switch(requestType){
-                        case "connect":
-                            System.out.println("Connecting");
-                            break;
-                        case "get":
-                            System.out.println("Getting File");
-                            break;
-                        case "put":
-                            System.out.println("Putting File");
-                            break;
-                        case "delete":
-                            System.out.println("Deleting File");
-                            break;
-                        case "disconnect":
-                            isConnectionEstablished=false;
-                            System.out.println("Closing this connection : " + s);
-                            s.close();
-                            System.out.println("Connection closed");
-                            break;
-                        default:
-                            break;
+                        String requestType = tosend.split(" ",2)[0];
+                        switch(requestType){
+                            case "connect":
+                                System.out.println("Connecting");
+                                break;
+                            case "get":
+                                System.out.println("Getting File");
+                                String targetGet = tosend.split(" ",2)[1];
+                                break;
+                            case "put":
+                                System.out.println("Putting File");
+                                String sourcePut = tosend.split(" ",3)[1];
+                                String targetPut = tosend.split(" ",3)[2];
+                                break;
+                            case "delete":
+                                System.out.println("Deleting File");
+                                String targetDelete = tosend.split(" ",2)[1];
+                                break;
+                            case "disconnect":
+                                isConnectionEstablished=false;
+                                System.out.println("Closing this connection : " + s);
+                                s.close();
+                                System.out.println("Connection closed");
+                                break;
+                            default:
+                                break;
+                        }
+                        dos.writeUTF(tosend);
+
+                        // printing date or time as requested by client
+                        String received = dis.readUTF();
+                        System.out.println(received);
                     }
-                    dos.writeUTF(tosend);
-
-                    // printing date or time as requested by client
-                    String received = dis.readUTF();
-                    System.out.println(received);
+                    // closing resources
+                    scn.close();
+                    dis.close();
+                    dos.close();
+                }catch(ConnectException e){
+                    System.out.println(e);
                 }
-                // closing resources
-                scn.close();
-                dis.close();
-                dos.close();
             }
-
-        }catch(ConnectException connectionException){
-            System.out.println("Check the server if it is started or not.");
         }catch(Exception e){
             e.printStackTrace();
         }
