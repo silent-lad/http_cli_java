@@ -79,8 +79,12 @@ class Connection extends Thread
                 switch(requestType){
                     case "GET":
                         String getFileLocation = (String)requestObject.get("target");
-                        System.out.println(getFileLocation);
                         responseJSON = this.HandleGETRequest(getFileLocation);
+                        outputStream.writeUTF(responseJSON);
+                    case "PUT":
+                        String putFileLocation = (String)requestObject.get("target");
+                        String content = (String)requestObject.get("content");
+                        responseJSON = this.HandlePUTRequest(putFileLocation,content);
                         outputStream.writeUTF(responseJSON);
                 }
                 System.out.println(requestType);
@@ -115,19 +119,7 @@ class Connection extends Thread
     public String HandleGETRequest(String fileLocation){
         JSONObject responseObject=new JSONObject();
         responseObject.put("message","response");
-//        try {
-//            String pathname = "www"+fileLocation;
-//            File myObj = new File(pathname);
-//            if (myObj.createNewFile()) {
-//                System.out.println("File created: " + myObj.getName());
-//            } else {
-//                System.out.println("File already exists.");
-//            }
-//            responseObject.put("code","200");
-//            responseObject.put("content","Ok");
-//        }catch (IOException E){
-//            E.printStackTrace();
-//        }
+
         try {
             String pathname = "www"+fileLocation;
             File file = new File(pathname);
@@ -158,4 +150,37 @@ class Connection extends Thread
         }
 
     }
+
+    public String HandlePUTRequest(String fileLocation, String content){
+        JSONObject responseObject=new JSONObject();
+        responseObject.put("message","response");
+
+        try {
+            String pathname = "www"+fileLocation;
+            File myObj = new File(pathname);
+            if(myObj.exists()){
+                System.out.println("File created: " + myObj.getName());
+                responseObject.put("content","Ok");
+                responseObject.put("code","201");
+            }else{
+                //myObj.mkdirs();
+                myObj.createNewFile();
+                responseObject.put("content","Ok");
+                responseObject.put("code","202");
+            }
+            FileWriter myWriter = new FileWriter(pathname);
+            myWriter.write(content);
+            myWriter.close();
+            return responseObject.toString();
+
+        }  catch (Exception E){
+            E.printStackTrace();
+            responseObject.put("code","500");
+            responseObject.put("content","Unknown Error");
+
+            return responseObject.toString();
+        }
+    }
+
+
 }

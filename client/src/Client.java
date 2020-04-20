@@ -61,9 +61,18 @@ public class Client
                                     System.out.println("Putting File");
                                     String sourcePut = CLICommand.split(" ",3)[1];
                                     String targetPut = CLICommand.split(" ",3)[2];
+
+                                    File file = new File(sourcePut);
+                                    FileInputStream fis = new FileInputStream(file);
+                                    byte[] data = new byte[(int) file.length()];
+                                    fis.read(data);
+                                    fis.close();
+
+                                    String str = new String(data, "UTF-8");
+
                                     obj.put("type", "PUT");
                                     obj.put("target", targetPut);
-                                    obj.put("source", sourcePut);
+                                    obj.put("content", str);
                                     break;
                                 case "delete":
                                     System.out.println("Deleting File");
@@ -82,6 +91,7 @@ public class Client
 
                         }
                         catch(Exception EE){
+                            EE.printStackTrace();
                             continue;
                         }
 
@@ -92,7 +102,6 @@ public class Client
                             String responseContent = (String)requestObject.get("content");
                             String responseCode = (String)requestObject.get("code");
                             System.out.println(responseContent);
-                            System.out.println(responseCode);
                         }
                         catch(SocketException socketError){
                             System.out.println("No server");
