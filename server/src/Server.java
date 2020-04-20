@@ -69,7 +69,9 @@ class Connection extends Thread
         String responseJSON;
         String requestJSON ;
 
-        while (true)
+        Boolean isConnectionAlive = true;
+
+        while (isConnectionAlive)
         {
             try {
                 requestJSON = inputStream.readUTF();
@@ -89,7 +91,8 @@ class Connection extends Thread
                 }
                 outputStream.writeUTF(requestType);
             } catch (Exception e) {
-                System.out.println(e);
+                System.out.println("Client Disconnected abruptly");
+                isConnectionAlive = false;
             }
         }
 
