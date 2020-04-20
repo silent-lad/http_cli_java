@@ -35,6 +35,7 @@ public class Client
                     DataInputStream dis = new DataInputStream(s.getInputStream());
                     DataOutputStream dos = new DataOutputStream(s.getOutputStream());
                     isConnectionEstablished = true;
+                    System.out.println("Successfully Connected");
 
                     while (isConnectionEstablished)
                     {
@@ -93,8 +94,8 @@ public class Client
                             System.out.println(responseContent);
                             System.out.println(responseCode);
                         }
-                        catch(SocketException scoketError){
-                            System.out.println("The server is not available");
+                        catch(SocketException socketError){
+                            System.out.println("No server");
                             isConnectionEstablished=false;
                         }
 
