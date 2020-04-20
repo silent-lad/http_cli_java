@@ -100,7 +100,7 @@ public class Client
                             String responseContent = (String) requestObject.get("content");
                             //String responseCode = (String)requestObject.get("code");
                             System.out.println(responseContent);
-                        } catch (SocketException socketError) {
+                        } catch (Exception socketError) {
                             if (isConnectionEstablished) {
                                 System.out.println("No server");
                             } else {
@@ -111,7 +111,6 @@ public class Client
 
                     }
                     // closing resources
-                    scn.close();
                     dis.close();
                     dos.close();
                 } catch (ConnectException e) {

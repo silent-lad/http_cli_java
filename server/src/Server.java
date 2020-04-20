@@ -166,14 +166,19 @@ class Connection extends Thread
         try {
             String pathname = "www"+fileLocation;
             File myObj = new File(pathname);
-            if(myObj.exists()){
+            File ParentDirectory = myObj.getParentFile();
+            if(ParentDirectory != null){
+                if(!ParentDirectory.exists()){
+                    ParentDirectory.mkdirs();
+                }
+            }
+
+            if(myObj.createNewFile()){
                 System.out.println("File created: " + myObj.getName());
                 responseObject.put("content","Ok");
                 responseObject.put("code","201");
             }else{
-                //myObj.mkdirs();
-                myObj.createNewFile();
-                responseObject.put("content","Ok");
+                responseObject.put("content","Modified");
                 responseObject.put("code","202");
             }
             FileWriter myWriter = new FileWriter(pathname);
