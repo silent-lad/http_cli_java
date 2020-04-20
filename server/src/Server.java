@@ -81,22 +81,27 @@ class Connection extends Thread
                         String getFileLocation = (String)requestObject.get("target");
                         responseJSON = this.HandleGETRequest(getFileLocation);
                         outputStream.writeUTF(responseJSON);
+                        break;
                     case "PUT":
                         String putFileLocation = (String)requestObject.get("target");
                         String content = (String)requestObject.get("content");
                         responseJSON = this.HandlePUTRequest(putFileLocation,content);
                         outputStream.writeUTF(responseJSON);
+                        break;
+                    case "DELETE":
+                        String deleteFileLocation = (String)requestObject.get("target");
+                        responseJSON = this.HandleDELETERequest(deleteFileLocation);
+                        outputStream.writeUTF(responseJSON);
+                        break;
+                    case "DISCONNECT":
+                        System.out.println("Client " + this.socket + " sends exit...");
+                        System.out.println("Closing this connection.");
+                        this.socket.close();
+                        System.out.println("Connection closed");
+                        isConnectionAlive = false;
+                        break;
                 }
                 System.out.println(requestType);
-
-                if(requestType.equals("Exit"))
-                {
-                    System.out.println("Client " + this.socket + " sends exit...");
-                    System.out.println("Closing this connection.");
-                    this.socket.close();
-                    System.out.println("Connection closed");
-                    break;
-                }
                 //outputStream.writeUTF(requestType);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -182,5 +187,36 @@ class Connection extends Thread
         }
     }
 
+    public String HandleDELETERequest(String fileLocation){
+        JSONObject responseObject=new JSONObject();
+        responseObject.put("message","response");
+
+        try {
+            String pathname = "www"+fileLocation;
+            File file = new File(pathname);
+            FileInputStream fis = new FileInputStream(file);
+
+            file.delete();
+            responseObject.put("code","203");
+            responseObject.put("content","Ok");
+
+            return responseObject.toString();
+        }  catch (FileNotFoundException e) {
+            e.printStackTrace();
+
+            responseObject.put("code","400");
+            responseObject.put("content","Not Found");
+
+            return responseObject.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+
+            responseObject.put("code","500");
+            responseObject.put("content","Unknown Error");
+
+            return responseObject.toString();
+        }
+
+    }
 
 }

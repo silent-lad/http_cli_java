@@ -83,7 +83,8 @@ public class Client
                                 case "disconnect":
                                     isConnectionEstablished=false;
                                     obj.put("type", "DISCONNECT");
-                                    s.close();
+                                    isConnectionEstablished=false;
+                                    //s.close();
                                     break;
                                 default:
                                     break;
@@ -100,11 +101,15 @@ public class Client
                             String responseJSON = dis.readUTF();
                             JSONObject requestObject = (JSONObject) JSONValue.parse(responseJSON);
                             String responseContent = (String)requestObject.get("content");
-                            String responseCode = (String)requestObject.get("code");
+                            //String responseCode = (String)requestObject.get("code");
                             System.out.println(responseContent);
                         }
                         catch(SocketException socketError){
-                            System.out.println("No server");
+                            if(isConnectionEstablished){
+                                System.out.println("No server");
+                            }else{
+                                System.out.println("Connection closed");
+                            }
                             isConnectionEstablished=false;
                         }
 
