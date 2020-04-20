@@ -26,61 +26,78 @@ public class Client
 
             if(commandType.equals("connect")){
 
-                isConnectionEstablished = true;
+                
                 InetAddress IPAddress = InetAddress.getByName(ipArg);
 
-                try {
-                     Socket s = new Socket(IPAddress, Integer.parseInt(portArg));
+                try
+                {
+                    Socket s = new Socket(IPAddress, Integer.parseInt(portArg));
                     DataInputStream dis = new DataInputStream(s.getInputStream());
                     DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+                    isConnectionEstablished = true;
 
                     while (isConnectionEstablished)
                     {
-                        String tosend = scn.nextLine();
+                        String CLICommand = scn.nextLine();
 
-                        String requestType = tosend.split(" ",2)[0];
+                        String requestType = CLICommand.split(" ",2)[0];
                         JSONObject obj = new JSONObject();
                         String jsonText;
 
                         obj.put("message", "request");
 
-
-                        try{switch(requestType){
-                            case "connect":
-                                System.out.println("Connecting");
-                                break;
-                            case "get":
-                                String targetGet = tosend.split(" ",2)[1];
-                                obj.put("type", "GET");
-                                obj.put("target", targetGet);
-                                break;
-                            case "put":
-                                System.out.println("Putting File");
-                                String sourcePut = tosend.split(" ",3)[1];
-                                String targetPut = tosend.split(" ",3)[2];
-                                obj.put("type", "PUT");
-                                obj.put("target", targetPut);
-                                obj.put("source", sourcePut);
-                                break;
-                            case "delete":
-                                System.out.println("Deleting File");
-                                String targetDelete = tosend.split(" ",2)[1];
-                                obj.put("type", "DELETE");
-                                obj.put("target", targetDelete);
-                                break;
-                            case "disconnect":
-                                isConnectionEstablished=false;
-                                obj.put("type", "DISCONNECT");
-                                s.close();
-                                break;
-                            default:
-                                break;
-                        }
-                        dos.writeUTF(obj.toString());
-                        String received = dis.readUTF();
-                        System.out.println(received);}catch(Exception EE){
+                        try {
+                            switch(requestType){
+                                case "connect":
+                                    System.out.println("Connecting");
+                                    break;
+                                case "get":
+                                    String targetGet = CLICommand.split(" ",2)[1];
+                                    obj.put("type", "GET");
+                                    obj.put("target", targetGet);
+                                    break;
+                                case "put":
+                                    System.out.println("Putting File");
+                                    String sourcePut = CLICommand.split(" ",3)[1];
+                                    String targetPut = CLICommand.split(" ",3)[2];
+                                    obj.put("type", "PUT");
+                                    obj.put("target", targetPut);
+                                    obj.put("source", sourcePut);
+                                    break;
+                                case "delete":
+                                    System.out.println("Deleting File");
+                                    String targetDelete = CLICommand.split(" ",2)[1];
+                                    obj.put("type", "DELETE");
+                                    obj.put("target", targetDelete);
+                                    break;
+                                case "disconnect":
+                                    isConnectionEstablished=false;
+                                    obj.put("type", "DISCONNECT");
+                                    s.close();
+                                    break;
+                                default:
+                                    break;
+                            }
 
                         }
+                        catch(Exception EE){
+                            continue;
+                        }
+
+                        try {
+                            dos.writeUTF(obj.toString());
+                            String responseJSON = dis.readUTF();
+                            JSONObject requestObject = (JSONObject) JSONValue.parse(responseJSON);
+                            String responseContent = (String)requestObject.get("content");
+                            String responseCode = (String)requestObject.get("code");
+                            System.out.println(responseContent);
+                            System.out.println(responseCode);
+                        }
+                        catch(SocketException scoketError){
+                            System.out.println("The server is not available");
+                            isConnectionEstablished=false;
+                        }
+
                     }
                     // closing resources
                     scn.close();

@@ -77,7 +77,6 @@ class Connection extends Thread
                 requestJSON = inputStream.readUTF();
                 System.out.println(requestJSON);
                 JSONObject requestObject = (JSONObject) JSONValue.parse(requestJSON);
-                System.out.println("4");
                 String requestType = (String)requestObject.get("type");
                 System.out.println(requestType);
 
