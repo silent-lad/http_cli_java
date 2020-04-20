@@ -13,54 +13,52 @@ public class Client
 {
     public static void main(String[] args) throws IOException
     {
-        try
-        {
+        try {
+            while(true){
             Scanner scn = new Scanner(System.in);
 
             Boolean isConnectionEstablished = false;
             String initCommand = scn.nextLine();
 
-            String commandType = initCommand.split(" ",3)[0];
-            String ipArg = initCommand.split(" ",3)[1];
-            String portArg = initCommand.split(" ",3)[2];
+            String commandType = initCommand.split(" ", 3)[0];
+            String ipArg = initCommand.split(" ", 3)[1];
+            String portArg = initCommand.split(" ", 3)[2];
 
-            if(commandType.equals("connect")){
+            if (commandType.equals("connect")) {
 
-                
+
                 InetAddress IPAddress = InetAddress.getByName(ipArg);
 
-                try
-                {
+                try {
                     Socket s = new Socket(IPAddress, Integer.parseInt(portArg));
                     DataInputStream dis = new DataInputStream(s.getInputStream());
                     DataOutputStream dos = new DataOutputStream(s.getOutputStream());
                     isConnectionEstablished = true;
                     System.out.println("Successfully Connected");
 
-                    while (isConnectionEstablished)
-                    {
+                    while (isConnectionEstablished) {
                         String CLICommand = scn.nextLine();
 
-                        String requestType = CLICommand.split(" ",2)[0];
+                        String requestType = CLICommand.split(" ", 2)[0];
                         JSONObject obj = new JSONObject();
                         String jsonText;
 
                         obj.put("message", "request");
 
                         try {
-                            switch(requestType){
+                            switch (requestType) {
                                 case "connect":
                                     System.out.println("Connecting");
                                     break;
                                 case "get":
-                                    String targetGet = CLICommand.split(" ",2)[1];
+                                    String targetGet = CLICommand.split(" ", 2)[1];
                                     obj.put("type", "GET");
                                     obj.put("target", targetGet);
                                     break;
                                 case "put":
                                     System.out.println("Putting File");
-                                    String sourcePut = CLICommand.split(" ",3)[1];
-                                    String targetPut = CLICommand.split(" ",3)[2];
+                                    String sourcePut = CLICommand.split(" ", 3)[1];
+                                    String targetPut = CLICommand.split(" ", 3)[2];
 
                                     File file = new File(sourcePut);
                                     FileInputStream fis = new FileInputStream(file);
@@ -76,22 +74,21 @@ public class Client
                                     break;
                                 case "delete":
                                     System.out.println("Deleting File");
-                                    String targetDelete = CLICommand.split(" ",2)[1];
+                                    String targetDelete = CLICommand.split(" ", 2)[1];
                                     obj.put("type", "DELETE");
                                     obj.put("target", targetDelete);
                                     break;
                                 case "disconnect":
-                                    isConnectionEstablished=false;
+                                    isConnectionEstablished = false;
                                     obj.put("type", "DISCONNECT");
-                                    isConnectionEstablished=false;
+                                    isConnectionEstablished = false;
                                     //s.close();
                                     break;
                                 default:
                                     break;
                             }
 
-                        }
-                        catch(Exception EE){
+                        } catch (Exception EE) {
                             EE.printStackTrace();
                             continue;
                         }
@@ -100,17 +97,16 @@ public class Client
                             dos.writeUTF(obj.toString());
                             String responseJSON = dis.readUTF();
                             JSONObject requestObject = (JSONObject) JSONValue.parse(responseJSON);
-                            String responseContent = (String)requestObject.get("content");
+                            String responseContent = (String) requestObject.get("content");
                             //String responseCode = (String)requestObject.get("code");
                             System.out.println(responseContent);
-                        }
-                        catch(SocketException socketError){
-                            if(isConnectionEstablished){
+                        } catch (SocketException socketError) {
+                            if (isConnectionEstablished) {
                                 System.out.println("No server");
-                            }else{
+                            } else {
                                 System.out.println("Connection closed");
                             }
-                            isConnectionEstablished=false;
+                            isConnectionEstablished = false;
                         }
 
                     }
@@ -118,10 +114,12 @@ public class Client
                     scn.close();
                     dis.close();
                     dos.close();
-                }catch(ConnectException e){
+                } catch (ConnectException e) {
                     System.out.println(e);
                 }
             }
+
+        }
         }catch(Exception e){
             e.printStackTrace();
         }

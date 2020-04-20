@@ -1,4 +1,5 @@
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.text.*;
 import java.util.*;
 import java.net.*;
@@ -8,17 +9,19 @@ import org.json.simple.parser.ContainerFactory;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 public class Server {
-    public static void main(String args[]) throws IOException {
+    public static void main(String[] args) throws IOException {
 
         try {
             File www = new File("www");
             if(!www.exists()){
-                www.mkdir();
+                if(!www.mkdir()){
+                    System.out.println("Cannot make folder www");
+                    return;
+                }
             }
         } catch (Exception e) {
             System.out.println("An error occurred.");
@@ -67,7 +70,7 @@ class Connection extends Thread
         String responseJSON;
         String requestJSON ;
 
-        Boolean isConnectionAlive = true;
+        boolean isConnectionAlive = true;
 
         while (isConnectionAlive)
         {
@@ -133,7 +136,7 @@ class Connection extends Thread
             fis.read(data);
             fis.close();
 
-            String str = new String(data, "UTF-8");
+            String str = new String(data, StandardCharsets.UTF_8);
             responseObject.put("code","200");
             responseObject.put("content",str);
 
@@ -206,13 +209,6 @@ class Connection extends Thread
 
             responseObject.put("code","400");
             responseObject.put("content","Not Found");
-
-            return responseObject.toString();
-        } catch (IOException e) {
-            e.printStackTrace();
-
-            responseObject.put("code","500");
-            responseObject.put("content","Unknown Error");
 
             return responseObject.toString();
         }
