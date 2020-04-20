@@ -34,7 +34,7 @@ public class Server {
             Socket socket = null;
             try {
                 socket = server.accept();
-                System.out.println("Server application running at port 8000");
+                System.out.println("New client connected");
                 Date today = new Date();
                 DataInputStream inputStream = new DataInputStream(socket.getInputStream());
                 DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
@@ -76,7 +76,6 @@ class Connection extends Thread
         {
             try {
                 requestJSON = inputStream.readUTF();
-                System.out.println(requestJSON);
                 JSONObject requestObject = (JSONObject) JSONValue.parse(requestJSON);
                 String requestType = (String)requestObject.get("type");
                 switch(requestType){
@@ -97,15 +96,11 @@ class Connection extends Thread
                         outputStream.writeUTF(responseJSON);
                         break;
                     case "DISCONNECT":
-                        System.out.println("Client " + this.socket + " sends exit...");
-                        System.out.println("Closing this connection.");
                         this.socket.close();
                         System.out.println("Connection closed");
                         isConnectionAlive = false;
                         break;
                 }
-                System.out.println(requestType);
-                //outputStream.writeUTF(requestType);
             } catch (Exception e) {
                 e.printStackTrace();
                 System.out.println("Client Disconnected abruptly");
@@ -115,7 +110,6 @@ class Connection extends Thread
 
         try
         {
-            // closing resources
             this.inputStream.close();
             this.outputStream.close();
 
@@ -174,7 +168,6 @@ class Connection extends Thread
             }
 
             if(myObj.createNewFile()){
-                System.out.println("File created: " + myObj.getName());
                 responseObject.put("content","Ok");
                 responseObject.put("code","201");
             }else{

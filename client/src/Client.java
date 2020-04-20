@@ -47,16 +47,12 @@ public class Client
 
                         try {
                             switch (requestType) {
-                                case "connect":
-                                    System.out.println("Connecting");
-                                    break;
                                 case "get":
                                     String targetGet = CLICommand.split(" ", 2)[1];
                                     obj.put("type", "GET");
                                     obj.put("target", targetGet);
                                     break;
                                 case "put":
-                                    System.out.println("Putting File");
                                     String sourcePut = CLICommand.split(" ", 3)[1];
                                     String targetPut = CLICommand.split(" ", 3)[2];
 
@@ -73,7 +69,6 @@ public class Client
                                     obj.put("content", str);
                                     break;
                                 case "delete":
-                                    System.out.println("Deleting File");
                                     String targetDelete = CLICommand.split(" ", 2)[1];
                                     obj.put("type", "DELETE");
                                     obj.put("target", targetDelete);
