@@ -20,6 +20,10 @@ public class Client
             Boolean isConnectionEstablished = false;
             String initCommand = scn.nextLine();
 
+            if(initCommand.split(" ",3).length!=3){
+                continue;
+            }
+
             String commandType = initCommand.split(" ", 3)[0];
             String ipArg = initCommand.split(" ", 3)[1];
             String portArg = initCommand.split(" ", 3)[2];
@@ -74,13 +78,12 @@ public class Client
                                     obj.put("target", targetDelete);
                                     break;
                                 case "disconnect":
-                                    isConnectionEstablished = false;
                                     obj.put("type", "DISCONNECT");
                                     isConnectionEstablished = false;
                                     //s.close();
                                     break;
                                 default:
-                                    break;
+                                    continue;
                             }
 
                         } catch (Exception EE) {

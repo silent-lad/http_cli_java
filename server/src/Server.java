@@ -5,14 +5,16 @@ import java.util.*;
 import java.net.*;
 
 
-import org.json.simple.parser.ContainerFactory;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.kohsuke.args4j.Option;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 public class Server {
+
+    @Option(name="-p",usage="Gets the port number")
+    public String port;
+
     public static void main(String[] args) throws IOException {
 
         try {
@@ -28,8 +30,16 @@ public class Server {
             e.printStackTrace();
         }
 
-        int serverPort = 8000;
-        ServerSocket server = new ServerSocket(serverPort);
+        ServerSocket server = null;
+
+        if(args.length>=2){
+            int portNumber = Integer.parseInt(args[1]);
+            server = new ServerSocket(portNumber);
+        }else{
+            server = new ServerSocket(8000);
+        }
+
+
         while (true) {
             Socket socket = null;
             try {
