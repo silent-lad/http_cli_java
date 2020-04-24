@@ -34,89 +34,93 @@ public class Client
 
                     InetAddress IPAddress = InetAddress.getByName(ipArg);
 
+                    Socket s = new Socket(IPAddress, Integer.parseInt(portArg));
+                    DataInputStream dis = new DataInputStream(s.getInputStream());
+                    DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+
                     try {
-                        Socket s = new Socket(IPAddress, Integer.parseInt(portArg));
-                        DataInputStream dis = new DataInputStream(s.getInputStream());
-                        DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+                         s = new Socket(IPAddress, Integer.parseInt(portArg));
+                         dis = new DataInputStream(s.getInputStream());
+                         dos = new DataOutputStream(s.getOutputStream());
                         isConnectionEstablished = true;
                         System.out.println("Successfully Connected");
+                    } catch (Exception e) {
+                        System.out.println("No Server at the given port and IP");
+                    }
 
-                        while (isConnectionEstablished) {
-                            String CLICommand = scn.nextLine();
 
-                            String requestType = CLICommand.split(" ", 2)[0];
-                            JSONObject obj = new JSONObject();
-                            String jsonText;
+                    while (isConnectionEstablished) {
+                        String CLICommand = scn.nextLine();
 
-                            obj.put("message", "request");
+                        String requestType = CLICommand.split(" ", 2)[0];
+                        JSONObject obj = new JSONObject();
 
-                            try {
-                                switch (requestType) {
-                                    case "get":
-                                        String targetGet = CLICommand.split(" ", 2)[1];
-                                        obj.put("type", "GET");
-                                        obj.put("target", targetGet);
-                                        break;
-                                    case "put":
-                                        String sourcePut = CLICommand.split(" ", 3)[1];
-                                        String targetPut = CLICommand.split(" ", 3)[2];
+                        obj.put("message", "request");
 
-                                        File file = new File(sourcePut);
-                                        FileInputStream fis = new FileInputStream(file);
-                                        byte[] data = new byte[(int) file.length()];
-                                        fis.read(data);
-                                        fis.close();
+                        try {
+                            switch (requestType) {
+                                case "get":
+                                    String targetGet = CLICommand.split(" ", 2)[1];
+                                    obj.put("type", "GET");
+                                    obj.put("target", targetGet);
+                                    break;
+                                case "put":
+                                    String sourcePut = CLICommand.split(" ", 3)[1];
+                                    String targetPut = CLICommand.split(" ", 3)[2];
 
-                                        String str = new String(data, "UTF-8");
+                                    File file = new File(sourcePut);
+                                    FileInputStream fis = new FileInputStream(file);
+                                    byte[] data = new byte[(int) file.length()];
+                                    fis.read(data);
+                                    fis.close();
 
-                                        obj.put("type", "PUT");
-                                        obj.put("target", targetPut);
-                                        obj.put("content", str);
-                                        break;
-                                    case "delete":
-                                        String targetDelete = CLICommand.split(" ", 2)[1];
-                                        obj.put("type", "DELETE");
-                                        obj.put("target", targetDelete);
-                                        break;
-                                    case "disconnect":
-                                        obj.put("type", "DISCONNECT");
-                                        isConnectionEstablished = false;
-                                        //s.close();
-                                        break;
-                                    default:
-                                        continue;
-                                }
+                                    String str = new String(data, "UTF-8");
 
-                            } catch (Exception EE) {
+                                    obj.put("type", "PUT");
+                                    obj.put("target", targetPut);
+                                    obj.put("content", str);
+                                    break;
+                                case "delete":
+                                    String targetDelete = CLICommand.split(" ", 2)[1];
+                                    obj.put("type", "DELETE");
+                                    obj.put("target", targetDelete);
+                                    break;
+                                case "disconnect":
+                                    obj.put("type", "DISCONNECT");
+                                    isConnectionEstablished = false;
+                                    //s.close();
+                                    break;
+                                default:
+                                    continue;
+                            }
+
+                        } catch (Exception EE) {
 //                                EE.printStackTrace();
-                                continue;
-                            }
-
-                            try {
-                                dos.writeUTF(obj.toString());
-                                System.out.println("Waiting for server response");
-                                String responseJSON = dis.readUTF();
-                                System.out.println("Server responded");
-                                System.out.println(responseJSON);
-                                JSONObject requestObject = (JSONObject) JSONValue.parse(responseJSON);
-                                String responseContent = (String) requestObject.get("content");
-                                //String responseCode = (String)requestObject.get("code");
-                                System.out.println(responseContent);
-                            } catch (Exception socketError) {
-                                if (isConnectionEstablished) {
-                                    System.out.println("No server");
-                                } else {
-                                    System.out.println("Connection closed");
-                                }
-                                isConnectionEstablished = false;
-                            }
-
+                            continue;
                         }
-                        // closing resources
-                        dis.close();
-                        dos.close();
-                    } catch (ConnectException e) {
-//                        e.printStackTrace();
+
+                        try {
+                            dos.writeUTF(obj.toString());
+                            System.out.println("Waiting for server response");
+                            String responseJSON = dis.readUTF();
+                            System.out.println("Server responded");
+                            System.out.println(responseJSON);
+                            JSONObject requestObject = (JSONObject) JSONValue.parse(responseJSON);
+                            String responseContent = (String) requestObject.get("content");
+                            //String responseCode = (String)requestObject.get("code");
+                            System.out.println(responseContent);
+                        } catch (Exception socketError) {
+                            if (isConnectionEstablished) {
+                                System.out.println("No Server");
+                            } else {
+                                System.out.println("Connection closed");
+                            }
+                            isConnectionEstablished = false;
+                            dis.close();
+                            dos.close();
+                            s.close();
+                        }
+
                     }
                 }
 
