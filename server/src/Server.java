@@ -5,6 +5,7 @@ import java.util.*;
 import java.net.*;
 
 
+import com.sun.tools.javac.util.StringUtils;
 import org.kohsuke.args4j.Option;
 
 import org.json.simple.JSONObject;
@@ -132,6 +133,13 @@ class Connection extends Thread
         JSONObject responseObject=new JSONObject();
         responseObject.put("message","response");
 
+        if(!this.verifyPath(fileLocation)){
+            responseObject.put("code","401");
+            responseObject.put("content","Bad Request");
+
+            return responseObject.toString();
+        }
+
         try {
             String pathname = "www"+fileLocation;
             File file = new File(pathname);
@@ -152,10 +160,10 @@ class Connection extends Thread
             responseObject.put("content","Not Found");
 
             return responseObject.toString();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
 
-            responseObject.put("code","500");
+            responseObject.put("code","402");
             responseObject.put("content","Unknown Error");
 
             return responseObject.toString();
@@ -166,6 +174,13 @@ class Connection extends Thread
     public String HandlePUTRequest(String fileLocation, String content){
         JSONObject responseObject=new JSONObject();
         responseObject.put("message","response");
+
+        if(!this.verifyPath(fileLocation)){
+            responseObject.put("code","401");
+            responseObject.put("content","Bad Request");
+
+            return responseObject.toString();
+        }
 
         try {
             String pathname = "www"+fileLocation;
@@ -191,7 +206,7 @@ class Connection extends Thread
 
         }  catch (Exception E){
             E.printStackTrace();
-            responseObject.put("code","500");
+            responseObject.put("code","402");
             responseObject.put("content","Unknown Error");
 
             return responseObject.toString();
@@ -201,6 +216,12 @@ class Connection extends Thread
     public String HandleDELETERequest(String fileLocation){
         JSONObject responseObject=new JSONObject();
         responseObject.put("message","response");
+        if(!this.verifyPath(fileLocation)){
+            responseObject.put("code","401");
+            responseObject.put("content","Bad Request");
+
+            return responseObject.toString();
+        }
 
         try {
             String pathname = "www"+fileLocation;
@@ -219,8 +240,40 @@ class Connection extends Thread
             responseObject.put("content","Not Found");
 
             return responseObject.toString();
+        } catch(Exception e){
+            responseObject.put("code","402");
+            responseObject.put("content","Unknown Error");
+
+            return responseObject.toString();
         }
 
+    }
+
+    public boolean verifyPath(String path){
+        try {
+            String extension = "";
+            if(!path.startsWith("/")) {
+                return false;
+            }
+            int i = path.lastIndexOf('.');
+            if (i < 0) {
+                return false;
+            }
+            extension = path.substring(i+1);
+            if(extension.length()>5){
+                return false;
+            }
+
+            int count = path.length() - path.replace("/", "").length();
+
+            if (count>11){
+                return false;
+            }
+
+            return true;
+        }catch(Exception e){
+            return false;
+        }
     }
 
 }
