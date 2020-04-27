@@ -251,6 +251,19 @@ class Connection extends Thread
 
     public boolean verifyPath(String path){
         try {
+            String[] arr = path.split("/");
+            for (int i = 0; i < arr.length; i++) {
+                if(arr[i].length()>20 && i!=arr.length-1) {
+                    return false;
+                }
+            }
+            if(arr[arr.length-1].split(".")[0].length()>10){
+                return false;
+            }
+
+            String regex = "^[a-zA-Z0-9_/]*$";
+            if(!path.matches(regex)) return false;
+
             String extension = "";
             if(!path.startsWith("/")) {
                 return false;
