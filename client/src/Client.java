@@ -78,7 +78,7 @@ public class Client
                                     obj.put("content", str);
                                     break;
                                 }catch(FileNotFoundException fileMissing){
-                                    System.out.println("File Not Found");
+                                    System.out.println("Source file Not Found");
                                     continue;
                                 }
                             case "delete":
@@ -102,8 +102,8 @@ public class Client
                     try {
                         dos.writeUTF(obj.toString());
                         String responseJSON = dis.readUTF();
-                        System.out.println("Server responded");
-                        System.out.println(responseJSON);
+//                        System.out.println("Server responded");
+//                        System.out.println(responseJSON);
                         JSONObject requestObject = (JSONObject) JSONValue.parse(responseJSON);
                         String responseContent = (String) requestObject.get("content");
                         System.out.println(responseContent);
