@@ -257,21 +257,23 @@ class Connection extends Thread
                     return false;
                 }
             }
-            if(arr[arr.length-1].split(".")[0].length()>10){
+            if(arr[arr.length-1].split("\\.")[0].length()>10){
                 return false;
             }
 
-            String regex = "^[a-zA-Z0-9_/]*$";
+            String regex = "^[a-zA-Z0-9_/.]*$";
             if(!path.matches(regex)) return false;
 
             String extension = "";
             if(!path.startsWith("/")) {
                 return false;
             }
+
             int i = path.lastIndexOf('.');
             if (i < 0) {
                 return false;
             }
+
             extension = path.substring(i+1);
             if(extension.length()>5){
                 return false;
@@ -282,7 +284,6 @@ class Connection extends Thread
             if (count>11){
                 return false;
             }
-
             return true;
         }catch(Exception e){
             return false;
