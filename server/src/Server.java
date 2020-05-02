@@ -55,7 +55,6 @@ public class Server {
 
                 ConnectionThread.start();
             } catch (Exception e) {
-                socket.close();
                 System.out.println("New client could not be connected");
             }
         }
@@ -88,6 +87,9 @@ class Connection extends Thread
         {
             try {
                 requestJSON = inputStream.readLine();
+                if(requestJSON==null){
+                    throw new Exception();
+                }
                 JSONObject requestObject = (JSONObject) JSONValue.parse(requestJSON);
                 String requestType = (String)requestObject.get("type");
                 switch(requestType){
@@ -115,7 +117,7 @@ class Connection extends Thread
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                System.out.println("Client Disconnected abruptly");
+                System.out.println("Client Disconnected");
                 isConnectionAlive = false;
             }
         }
