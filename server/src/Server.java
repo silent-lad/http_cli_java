@@ -6,6 +6,7 @@ import java.net.*;
 
 
 import com.sun.tools.javac.util.StringUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.kohsuke.args4j.Option;
 
 import org.json.simple.JSONObject;
@@ -86,25 +87,25 @@ class Connection extends Thread
         while (isConnectionAlive)
         {
             try {
-                requestJSON = inputStream.readUTF();
+                requestJSON = inputStream.readLine();
                 JSONObject requestObject = (JSONObject) JSONValue.parse(requestJSON);
                 String requestType = (String)requestObject.get("type");
                 switch(requestType){
                     case "GET":
                         String getFileLocation = (String)requestObject.get("target");
                         responseJSON = this.HandleGETRequest(getFileLocation);
-                        outputStream.writeUTF(responseJSON);
+                        outputStream.write((String.valueOf(responseJSON)+"\n").getBytes("UTF-8"));
                         break;
                     case "PUT":
                         String putFileLocation = (String)requestObject.get("target");
                         String content = (String)requestObject.get("content");
                         responseJSON = this.HandlePUTRequest(putFileLocation,content);
-                        outputStream.writeUTF(responseJSON);
+                        outputStream.write((String.valueOf(responseJSON)+"\n").getBytes("UTF-8"));
                         break;
                     case "DELETE":
                         String deleteFileLocation = (String)requestObject.get("target");
                         responseJSON = this.HandleDELETERequest(deleteFileLocation);
-                        outputStream.writeUTF(responseJSON);
+                        outputStream.write((String.valueOf(responseJSON)+"\n").getBytes("UTF-8"));
                         break;
                     case "DISCONNECT":
                         this.socket.close();
@@ -149,8 +150,9 @@ class Connection extends Thread
             fis.close();
 
             String str = new String(data, StandardCharsets.UTF_8);
+            String fileContentEscaped = StringEscapeUtils.escapeJava(str);
             responseObject.put("code","200");
-            responseObject.put("content",str);
+            responseObject.put("content",fileContentEscaped);
 
             return responseObject.toString();
         }  catch (FileNotFoundException e) {
@@ -200,7 +202,8 @@ class Connection extends Thread
                 responseObject.put("code","202");
             }
             FileWriter myWriter = new FileWriter(pathname);
-            myWriter.write(content);
+            String fileContentUnescaped = StringEscapeUtils.unescapeJava(content);
+            myWriter.write(fileContentUnescaped);
             myWriter.close();
             return responseObject.toString();
 

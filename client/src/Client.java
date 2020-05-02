@@ -6,10 +6,14 @@ import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-// Client class 
+
+// Client class
+// 115.146.85.127
+// 80
 public class Client
 {
     public static void main(String[] args) throws IOException
@@ -73,9 +77,10 @@ public class Client
                                     fis.close();
 
                                     String str = new String(data, StandardCharsets.UTF_8);
+                                    String fileContentEscaped = StringEscapeUtils.escapeJava(str);
                                     obj.put("type", "PUT");
                                     obj.put("target", targetPut);
-                                    obj.put("content", str);
+                                    obj.put("content", fileContentEscaped);
                                     break;
                                 }catch(FileNotFoundException fileMissing){
                                     System.out.println("Source file Not Found");
@@ -100,20 +105,17 @@ public class Client
                     }
 
                     try {
-                        dos.writeUTF(obj.toString());
-                        String responseJSON = dis.readUTF();
-//                        System.out.println("Server responded");
-//                        System.out.println(responseJSON);
-                        JSONObject requestObject = (JSONObject) JSONValue.parse(responseJSON);
+                        dos.write((String.valueOf(obj)+"\n").getBytes("UTF-8"));
+                        String line = dis.readLine();
+                        if(line==null){
+                            throw new Exception();
+                        }
+                        JSONObject requestObject = (JSONObject) JSONValue.parse(line);
                         String responseContent = (String) requestObject.get("content");
-                        System.out.println(responseContent);
-                    } catch (SocketException connectionReset){
-                        isConnectionEstablished = false;
-                        System.out.println("No Server");
-                        dis.close();
-                        dos.close();
-                        s.close();
+                        String responseContentUnescaped = StringEscapeUtils.unescapeJava(responseContent);
+                        System.out.println(responseContentUnescaped);
                     } catch (Exception someException) {
+                        System.out.println("Successfully disconnected");
                         dis.close();
                         dos.close();
                         s.close();
